@@ -101,4 +101,62 @@ fig.5 : Courbe de taux d'apprentissage
 
 Il reste constant à **0.001**, sans ajustement au fil des époques.  
 
+# Entrainement du model 2ème itération :
+
+### Améliorations clés :
+1. **Correction des erreurs W&B** :  
+   - Ajout de `{epoch:02d}` dans le `filepath` pour éviter l'erreur `FileNotFoundError`
+   - `save_best_only=True` fonctionne maintenant car on s'assure que le fichier est bien sauvegardé
+
+2. **Meilleure régularisation** :
+   - Augmentation du `Dropout` pour éviter l'overfitting
+
+3. **Optimisation du training** :
+   - `ReduceLROnPlateau` réduit automatiquement le learning rate si `val_loss` stagne
+   - `EarlyStopping` arrête l'entraînement si `val_loss` ne s'améliore pas pendant 10 époques
+
+### **1️. `epoch/val_loss` (Perte de validation)**
+![val_loss_v2](val_loss_v2.svg)
+fig.1 : Courbe de la perte sur l'ensemble de validation
+
+**Interpretation :**  
+- La courbe est relativement stable jusqu'à environ **l'époque 7**, mais après, on observe une montée soudaine et une forte variation.  
+- Cela indique un **début d'overfitting**, où le modèle commence à trop s'adapter aux données d'entraînement et perd en généralisation.  
+
+---
+
+### **2️. `epoch/val_accuracy` (Précision de validation)**
+![val_accuracy_v2](val_accuracy_v2.svg)
+fig.2 : Courbe de précision sur l’ensemble de validation
+
+**Interpretation :**  
+- La courbe est **totalement plate**, ce qui est anormal.  
+- Il y a un **bug potentiel** où l'évaluation ne se fait pas correctement.  
+---
+
+### **3️. `epoch/loss` (Perte d'entraînement)**
+![loss_v2](loss_v2.svg)
+fig.3 :Courbe d'évolution de la perte sur l’ensemble
+
+**Interpretation :**  
+- Le `loss` diminue de façon régulière, ce qui est un bon signe.  
+- Pas de signe de divergence ou de forte oscillation, ce qui montre que l'entraînement est bien réglé. 
+---
+
+### **4️. `epoch/learning_rate`**
+![learning_rate_v2](learning_rate_v2.svg)
+fig.4 : Courbe de taux d'apprentissage
+
+**Interpretation :**
+- Le `ReduceLROnPlateau` a bien fonctionné : le taux d'apprentissage a chuté après **l'époque 8**, ce qui est une bonne stratégie.  
+- Cela aurait pu se produire **un peu plus tôt** pour éviter la montée du `val_loss`.
+---
+
+### **5️. `epoch/accuracy` (Précision d'entraînement)**
+![accuracy_v2](accuracy_v2.svg)
+fig.5 : Courbe de précision sur l’ensemble d'entraînement
+
+**Interpretation :**  
+- On atteint rapidement **84.4% de précision**, puis la courbe devient plate.  
+- Cela pourrait être un signe de **plateau de convergence**, mais aussi de **mauvaise gestion des classes** si `val_accuracy` reste figé à 1.
 ---
