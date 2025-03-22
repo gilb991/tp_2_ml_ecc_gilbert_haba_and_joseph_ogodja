@@ -45,10 +45,7 @@ fig.1 :Courbe d'évolution de la perte sur l’ensemble d'entraînement
 
 **Interpretations** :
 
-**Tendance** : La courbe descend progressivement, ce qui signifie que le modèle apprend bien sur les données d’entraînement.  
-
-**Bon signe** : La perte diminue sans fluctuations majeures.  
-**À surveiller** : Une perte trop basse pourrait indiquer du surapprentissage (overfitting).  
+La courbe descend progressivement, ce qui signifie que le modèle apprend bien sur les données d’entraînement. La perte diminue sans fluctuations majeures. Une perte trop basse pourrait indiquer du surapprentissage (overfitting).  
 
 ---
 
@@ -59,7 +56,7 @@ fig.2 : Courbe de la perte sur l'ensemble de validation
 
 **Interpretations** :
 
-**Tendance** : Contrairement à la courbe de perte d'entraînement, celle de validation fluctue et **augmente après un certain nombre d’époques**.  
+Contrairement à la courbe de perte d'entraînement, celle de validation fluctue et **augmente après un certain nombre d’époques**.  
 
 **Problème possible** :  
 - Cela indique un **surapprentissage** (overfitting).  
@@ -79,10 +76,7 @@ fig.3 : Courbe de précision sur l’ensemble d'entraînement
 
 **Interpretations** :
 
-**Tendance** : La courbe est plate et semble s’être stabilisée très rapidement autour de **0.845** (84.5%).  
-
-**Bon signe** : Le modèle converge bien.  
-**À surveiller** : Si elle est **trop haute** par rapport à `val_accuracy`, cela peut signifier un **overfitting**.  
+La courbe est plate et semble s’être stabilisée très rapidement autour de **0.845** (84.5%). Le modèle converge bien. Si elle est **trop haute** par rapport à `val_accuracy`, cela peut signifier un **overfitting**.  
 
 ---
 
@@ -93,13 +87,8 @@ fig.4 : Courbe de précision sur l’ensemble de validation
 
 **Interpretations** :
 
-**Problème** : La valeur semble **bloquée** et ne progresse pas après les premières époques.  
-- Il y a possiblement **une erreur d'affichage** ou **un bug dans le code de logging**.  
-- Vérifie que `validation_data=(X_test, Y_test)` est bien passé correctement dans `model.fit()`.  
-
-**Solution envisagée** :  
-- Vérifier que les métriques sont bien loggées (`val_accuracy`).  
-- Tester avec `metrics=['accuracy', 'val_accuracy']` dans `compile()`.  
+La valeur semble **bloquée** et ne progresse pas après les premières époques.  
+- Il y a possiblement **une erreur d'affichage** ou **un bug dans le code de logging**.   
 
 ---
 
@@ -110,9 +99,6 @@ fig.5 : Courbe de taux d'apprentissage
 
 **Interpretations** :
 
-**Tendance** : Il reste constant à **0.001**, sans ajustement au fil des époques.  
-
-**Solution envisagée** :  
-- Essayer **un scheduler** comme `ReduceLROnPlateau` pour ajuster dynamiquement le learning rate.
+Il reste constant à **0.001**, sans ajustement au fil des époques.  
 
 ---
