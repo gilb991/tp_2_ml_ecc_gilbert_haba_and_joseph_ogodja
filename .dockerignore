@@ -1,0 +1,31 @@
+# Ignorer l'environnement virtuel local
+venv/
+
+# Ignorer les fichiers de cache et compilés
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignorer les fichiers de logs
+*.log
+
+# Ignorer les fichiers et dossiers spécifiques à Git
+.git
+.gitignore
+
+# Ignorer les fichiers temporaires de l'éditeur
+*.swp
+*.swo
+*.bak
+.DS_Store
+.vscode/
+.idea/
+
+# Ignorer les fichiers de sortie et modèles entraînés s'ils ne sont pas nécessaires
+*.h5
+*.keras
+checkpoints/
+logs/
+
+!api/lstm_model_final.keras
