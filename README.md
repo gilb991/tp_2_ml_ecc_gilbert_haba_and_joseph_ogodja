@@ -33,11 +33,21 @@ Le dataset contient les colonnes suivantes :
 - Variable cible :
   * **State** : *État de la pompe (0, 1, 2, 3).*
 
+
+
+### 📊 **Tableau récapitulatif des architectures testées et performances associées**  
+
+| Modèle | Couches principales | Batch Size | Class Weight | Learning Rate | Epochs arrêtées | Train Acc. | Val Acc. | Train Loss | Val Loss | Overfitting ? |
+|--------|----------------------|------------|--------------|---------------|-----------------|------------|----------|------------|----------|---------------|
+| **V1.0** | LSTM(64) → LSTM(32) → Dense(32) | 32 | ❌ Non | 0.001 | 8 | 30% | ~10% | ↘️ Diminue | ↗️ Augmente | 🔴 Oui |
+| **V2.0** | LSTM(64) → LSTM(32) → Dense(32) | 32 | ❌ Non | 0.001 (avec ReduceLROnPlateau) | 8 | 30% | ~10% | ↘️ Diminue | ↗️ Augmente | 🔴 Oui |
+| **V3.0** | **LSTM(128) → LSTM(64) → Dense(64)** | **64** | ✅ Oui | 0.001 (avec ReduceLROnPlateau) | 8 | 35% | ~15% | ↘️ Diminue | ↗️ Augmente | 🔴 Oui |
+---
+
 # Entrainement du model 1ère itération :
 D'après les graphiques de suivi dans **Weights & Biases (WandB)**, voici une analyse détaillée des performances du modèle LSTM :  
 
 ---
-
 ### **1. Évolution de la perte sur l’ensemble d'entraînement (`epoch/loss`)**  
 
 ![loss](loss.svg)
@@ -114,6 +124,8 @@ Il reste constant à **0.001**, sans ajustement au fil des époques.
 3. **Optimisation du training** :
    - `ReduceLROnPlateau` réduit automatiquement le learning rate si `val_loss` stagne
    - `EarlyStopping` arrête l'entraînement si `val_loss` ne s'améliore pas pendant 10 époques
+  
+### Résultats obtenus :
 
 ### **1️. `epoch/val_loss` (Perte de validation)**
 ![val_loss_v2](val_loss_v2.svg)
@@ -160,3 +172,53 @@ fig.5 : Courbe de précision sur l’ensemble d'entraînement
 - On atteint rapidement **84.4% de précision**, puis la courbe devient plate.  
 - Cela pourrait être un signe de **plateau de convergence**, mais aussi de **mauvaise gestion des classes** si `val_accuracy` reste figé à 1.
 ---
+
+# Entrainement du model 3ème itération :
+
+### Améliorations apportées :
+1. **Augmentation de la capacité du modèle** :  
+   - Plus de neurones dans les couches LSTM pour capturer plus de complexité.
+  
+2. **Correction de la métrique `val_accuracy`** :  
+   - Remplacement de `accuracy` par `sparse_categorical_accuracy` pour correspondre à la loss utilisée.
+
+3. **Gestion des classes déséquilibrées** :  
+   - Calcul de `class_weight` pour que le modèle ne soit pas biaisé vers la classe majoritaire.
+
+4. **Optimisation du `learning rate`** :  
+   - Réduction plus rapide du `LR` si `val_loss` stagne.
+   - `EarlyStopping` plus agressif pour éviter un overfitting inutile.
+
+5. **Augmentation du `batch_size`** :  
+   - Passage à `64` pour stabiliser l'entraînement.
+
+### Résultats obtenus :
+1. **Validation Accuracy (epoch/val_sparse_categorical_accuracy)**
+   ![val_sparse_categorical_accuracy_v3](val_sparse_categorical_accuracy.svg)
+   
+   - La courbe montre une chute brutale après la première époque, et elle reste proche de zéro.  
+   - Cela suggère que le modèle ne généralise pas bien sur les données de validation, ce qui peut être dû à un surajustement aux données d'entraînement ou un problème de distribution des classes.
+
+2. **Validation Loss (epoch/val_loss)**
+   ![val_loss_v3](val_loss_v3.svg)
+
+   - La perte de validation augmente progressivement au fil des époques, indiquant que le modèle devient moins performant sur l'ensemble de validation.  
+   - Un tel comportement est un signe d’overfitting, où le modèle apprend trop bien les données d'entraînement et ne parvient pas à généraliser.
+
+3. **Training Accuracy (epoch/sparse_categorical_accuracy)**
+   ![sparse_categorical_accuracy](sparse_categorical_accuracy.svg)
+
+   - La courbe est instable et montre des fluctuations importantes.  
+   - Cela peut indiquer que l'entraînement est instable, potentiellement en raison d'un taux d'apprentissage trop élevé ou d'une architecture inadaptée.
+
+4. **Training Loss (epoch/loss)**
+   ![loss_v3](loss_v3.svg) 
+
+   - La perte d'entraînement diminue progressivement, ce qui montre que le modèle apprend bien sur l’ensemble d'entraînement.  
+   - Cependant, la divergence avec la perte de validation suggère un overfitting.
+
+5. **Learning Rate (epoch/learning_rate)**  
+   ![learning_rate_v3](learning_rate_v3.svg)
+
+   - Le taux d’apprentissage diminue brusquement après quelques époques.  
+   - Bien que cette technique aide souvent à stabiliser l'entraînement, cela ne semble pas suffisant pour empêcher l’overfitting.
